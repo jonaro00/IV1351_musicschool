@@ -12,7 +12,10 @@ DROP TABLE IF EXISTS personal_details CASCADE;
 CREATE TABLE personal_details (
  id INT GENERATED ALWAYS AS IDENTITY,
  ssn VARCHAR(30) UNIQUE NOT NULL,
- name VARCHAR(50)
+ name VARCHAR(50),
+ street VARCHAR(30),
+ city VARCHAR(30),
+ zip VARCHAR(10)
 );
 
 ALTER TABLE personal_details ADD CONSTRAINT PK_personal_details PRIMARY KEY (id);
@@ -44,9 +47,6 @@ CREATE TABLE student (
  instrument VARCHAR(50),
  ensemble VARCHAR(50) CHECK (instrument IS NOT NULL OR ensemble IS NOT NULL),
  skill_level VARCHAR(12) NOT NULL,
- street VARCHAR(30),
- city VARCHAR(30),
- zip VARCHAR(10),
  personal_details_id INT,
  contact_details_id INT,
  parent_contact_details_id INT

@@ -6,14 +6,11 @@ INSERT INTO phone VALUES (1, '+4612345678');
 --student 1
 INSERT INTO contact_details (email) VALUES ('first_student@soundgood.music');
 INSERT INTO phone VALUES (2, '+4612345678'), (2, '+4612345679');
-INSERT INTO personal_details (ssn, name) VALUES ('19970303-1234', 'Legvi McBoo');
+INSERT INTO personal_details (ssn, name, street, city, zip) VALUES ('19970303-1234', 'Legvi McBoo', 'Road 1', 'Townsville', '1337');
 INSERT INTO student (
     instrument,
     ensemble,
     skill_level,
-    street,
-    city,
-    zip,
     personal_details_id,
     contact_details_id,
     parent_contact_details_id
@@ -21,9 +18,6 @@ INSERT INTO student (
     'Oboe',
     'Jazz',
     'Beginner',
-    'Road 1',
-    'Townsville',
-    '1337',
     1,
     2,
     1
@@ -32,14 +26,11 @@ INSERT INTO student (
 --student 2, a sibling to student 1 since they have the same parent contact details
 INSERT INTO contact_details (email) VALUES ('second_student@soundgood.music');
 INSERT INTO phone VALUES (3, '+4612345678'), (3, '+4612345680');
-INSERT INTO personal_details (ssn, name) VALUES ('19990403-1234', 'Kanad McBoo');
+INSERT INTO personal_details (ssn, name, street, city, zip) VALUES ('19990403-1234', 'Kanad McBoo', 'Road 1', 'Townsville', '1337');
 INSERT INTO student (
     instrument,
     ensemble,
     skill_level,
-    street,
-    city,
-    zip,
     personal_details_id,
     contact_details_id,
     parent_contact_details_id
@@ -47,9 +38,6 @@ INSERT INTO student (
     'Flute',
     NULL,
     'Beginner',
-    'Road 1',
-    'Townsville',
-    '1337',
     2,
     3,
     1
@@ -58,7 +46,7 @@ INSERT INTO student (
 --instructor 1
 INSERT INTO contact_details (email) VALUES ('the_boss@soundgood.music');
 INSERT INTO phone VALUES (4, '+4612335632');
-INSERT INTO personal_details (ssn, name) VALUES ('19670201-1234', 'Krabi Macronn');
+INSERT INTO personal_details (ssn, name, street, city, zip) VALUES ('19670201-1234', 'Krabi Macronn', 'Street 12', 'Townsville', '423');
 INSERT INTO instructor (personal_details_id, contact_details_id) VALUES (3, 4);
 INSERT INTO instructor_instrument VALUES
     (1, 'Guitar'),
@@ -74,7 +62,7 @@ INSERT INTO instructor_ensemble VALUES
 --instructor 2
 INSERT INTO contact_details (email) VALUES ('big_boi@soundgood.music');
 INSERT INTO phone VALUES (5, '+4612335876');
-INSERT INTO personal_details (ssn, name) VALUES ('19770211-1234', 'Inka Lao');
+INSERT INTO personal_details (ssn, name, street, city, zip) VALUES ('19770211-1234', 'Inka Lao', 'Street 15', 'Townsville', '424');
 INSERT INTO instructor (personal_details_id, contact_details_id) VALUES (4, 5);
 INSERT INTO instructor_instrument VALUES
     (2, 'Guitar'),
@@ -166,14 +154,11 @@ INSERT INTO phone VALUES (5, '+4612356784');
 --student 3
 INSERT INTO contact_details (email) VALUES ('smart_guy@soundgood.music');
 INSERT INTO phone VALUES (6, '+4612000001');
-INSERT INTO personal_details (ssn, name) VALUES ('19900405-1234', 'Bing Chilling');
+INSERT INTO personal_details (ssn, name, street, city, zip) VALUES ('19900405-1234', 'Bing Chilling', 'Road 2', 'Townsville', '1337');
 INSERT INTO student (
     instrument,
     ensemble,
     skill_level,
-    street,
-    city,
-    zip,
     personal_details_id,
     contact_details_id,
     parent_contact_details_id
@@ -181,9 +166,6 @@ INSERT INTO student (
     'Saxophone',
     'Jazz',
     'Beginner',
-    'Road 2',
-    'Townsville',
-    '1337',
     5,
     6,
     5
