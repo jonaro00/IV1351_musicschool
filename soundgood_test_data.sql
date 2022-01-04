@@ -74,7 +74,7 @@ INSERT INTO instructor_ensemble VALUES
     (2, 'Jazz')
 ;
 
---times
+--times 1-12
 INSERT INTO time_period (start_time, end_time) VALUES
     (TIMESTAMP '2022-01-03 08:00', TIMESTAMP '2022-01-03 10:00'),
     (TIMESTAMP '2022-01-03 10:00', TIMESTAMP '2022-01-03 12:00'),
@@ -193,3 +193,37 @@ INSERT INTO lesson (
 );
 INSERT INTO booking (student_id, lesson_id) VALUES (1, 3);
 INSERT INTO booking (student_id, lesson_id) VALUES (3, 3);
+
+
+--times
+INSERT INTO time_period (start_time, end_time) VALUES
+    (TIMESTAMP '2022-01-10 08:00', TIMESTAMP '2022-01-10 10:00'),
+    (TIMESTAMP '2022-01-10 10:00', TIMESTAMP '2022-01-10 12:00'),
+    (TIMESTAMP '2022-01-10 13:00', TIMESTAMP '2022-01-10 15:00'),
+    (TIMESTAMP '2022-01-10 15:00', TIMESTAMP '2022-01-10 17:00'),
+    (TIMESTAMP '2022-01-11 08:00', TIMESTAMP '2022-01-11 10:00'),
+    (TIMESTAMP '2022-01-11 10:00', TIMESTAMP '2022-01-11 12:00'),
+    (TIMESTAMP '2022-01-11 13:00', TIMESTAMP '2022-01-11 15:00'),
+    (TIMESTAMP '2022-01-11 15:00', TIMESTAMP '2022-01-11 17:00'),
+    (TIMESTAMP '2022-01-13 08:00', TIMESTAMP '2022-01-13 10:00'),
+    (TIMESTAMP '2022-01-13 10:00', TIMESTAMP '2022-01-13 12:00'),
+    (TIMESTAMP '2022-01-13 13:00', TIMESTAMP '2022-01-13 15:00'),
+    (TIMESTAMP '2022-01-13 15:00', TIMESTAMP '2022-01-13 17:00')
+;
+
+--lesson 4: Jazz ensemble with instructor 2 on 10 jan 08:00, 2 slots fully booked
+INSERT INTO lesson (instrument, ensemble, skill_level, min_slots, max_slots, instructor_id, time_period_id, price)
+VALUES (NULL, 'Jazz', 'Beginner', 2, 2, 2, 13, 150);
+INSERT INTO booking (student_id, lesson_id) VALUES (1, 4);
+INSERT INTO booking (student_id, lesson_id) VALUES (3, 4);
+--lesson 5: RockBand ensemble with instructor 1 on 10 jan 10:00, 4 slots none booked
+INSERT INTO lesson (instrument, ensemble, skill_level, min_slots, max_slots, instructor_id, time_period_id, price)
+VALUES (NULL, 'RockBand', 'Beginner', 2, 4, 1, 14, 150);
+--lesson 6: Orchestra ensemble with instructor 1 on 10 jan 15:00, 10 slots none booked
+INSERT INTO lesson (instrument, ensemble, skill_level, min_slots, max_slots, instructor_id, time_period_id, price)
+VALUES (NULL, 'Orchestra', 'Beginner', 5, 10, 1, 16, 150);
+--lesson 7: Jazz ensemble with instructor 2 on 11 jan 08:00, 2 slots 1 booked
+INSERT INTO lesson (instrument, ensemble, skill_level, min_slots, max_slots, instructor_id, time_period_id, price)
+VALUES (NULL, 'Jazz', 'Beginner', 2, 2, 2, 17, 150);
+INSERT INTO booking (student_id, lesson_id) VALUES (1, 7);
+

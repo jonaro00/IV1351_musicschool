@@ -119,8 +119,8 @@ CREATE TABLE lesson (
  instrument VARCHAR(50),
  ensemble VARCHAR(50) CHECK (instrument IS NOT NULL OR ensemble IS NOT NULL),
  skill_level VARCHAR(12) NOT NULL,
- min_slots INT,
- max_slots INT CHECK (max_slots >= min_slots),
+ min_slots INT NOT NULL,
+ max_slots INT NOT NULL CHECK (max_slots >= min_slots),
  instructor_id INT,
  time_period_id INT,
  price FLOAT(10) NOT NULL
