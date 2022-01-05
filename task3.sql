@@ -103,8 +103,8 @@ SELECT * FROM overworked_instructors;
 
 
 -- List all ensembles next week (Jan 10 - Jan 16), sorted by genre and weekday
-DROP VIEW IF EXISTS ensembles_next_week;
-CREATE VIEW ensembles_next_week AS
+DROP MATERIALIZED VIEW IF EXISTS ensembles_next_week;
+CREATE MATERIALIZED VIEW ensembles_next_week AS
 SELECT
     l.ensemble AS "Genre",
     t.start_time AS "Start",
