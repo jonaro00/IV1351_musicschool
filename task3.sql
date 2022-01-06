@@ -126,8 +126,8 @@ FROM lesson AS l
             FULL OUTER JOIN booking as b ON l.id = b.lesson_id
         GROUP BY l.id
     ) AS nb ON nb.id = l.id
-WHERE t.start_time >= TIMESTAMP '2022-01-10'
-    AND t.start_time < TIMESTAMP '2022-01-17'
+WHERE t.start_time >= LOCALTIMESTAMP
+    AND t.start_time < LOCALTIMESTAMP + INTERVAL '7 days'
     AND l.ensemble IS NOT NULL
 ORDER BY l.ensemble, t.start_time
 ;
