@@ -35,7 +35,8 @@ CREATE TABLE rental_instrument (
  id INT GENERATED ALWAYS AS IDENTITY,
  type VARCHAR(50) NOT NULL,
  brand VARCHAR(30),
- price FLOAT(10) NOT NULL
+ price FLOAT(10) NOT NULL CHECK (price >= 0),
+ quantity INT NOT NULL CHECK (quantity >= 0)
 );
 
 ALTER TABLE rental_instrument ADD CONSTRAINT PK_rental_instrument PRIMARY KEY (id);
@@ -69,8 +70,8 @@ DROP TABLE IF EXISTS application CASCADE;
 CREATE TABLE application (
  id INT GENERATED ALWAYS AS IDENTITY,
  student_id INT,
- enrollment_offered BIT(1),
- accepted BIT(1)
+ enrollment_offered BOOLEAN,
+ accepted BOOLEAN
 );
 
 ALTER TABLE application ADD CONSTRAINT PK_application PRIMARY KEY (id);
@@ -134,7 +135,8 @@ CREATE TABLE rental (
  id INT GENERATED ALWAYS AS IDENTITY,
  student_id INT,
  rental_instrument_id INT,
- time_period_id INT
+ time_period_id INT,
+ terminated BOOLEAN DEFAULT FALSE
 );
 
 ALTER TABLE rental ADD CONSTRAINT PK_rental PRIMARY KEY (id);

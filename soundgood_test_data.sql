@@ -227,3 +227,16 @@ INSERT INTO lesson (instrument, ensemble, skill_level, min_slots, max_slots, ins
 VALUES (NULL, 'Jazz', 'Beginner', 2, 2, 2, 17, 150);
 INSERT INTO booking (student_id, lesson_id) VALUES (1, 7);
 
+
+--instruments
+INSERT INTO rental_instrument (type, brand, price, quantity) VALUES
+    ('Guitar', 'Apple', 100, 2),
+    ('Guitar', 'Sony', 80, 1),
+    ('Guitar', NULL, 50, 8),
+    ('Drums', 'Donkey Kong', 180, 1),
+    ('Bass', 'Dubstep', 80, 1),
+    ('Bass', 'Drop', 120, 1),
+    ('Bass', 'Drop', 110, 1),
+    ('Bass', 'LeFishe', 30, 1),
+    ('Violin', 'Stirling', 90, 2)
+;
