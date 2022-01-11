@@ -1,8 +1,17 @@
+"""
+Integration Layer
+
+Handles the connection to the Database and provides an
+interface to query it.
+"""
+
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Result
 
 from .model import RentalInstrument, Rental
 
+
+# DATABASE LOCAITON, CREDENTIALS, DIALECT AND DRIVER
 
 USER = 'postgres'
 PASSWD = 'postgres'
@@ -12,6 +21,8 @@ DB = 'soundgood'
 
 URL = f'postgresql+psycopg2://{USER}:{PASSWD}@{HOST}:{PORT}/{DB}'
 
+
+# TABLE AND COLUMN NAMES
 
 DEFAULT_PK_NAME = 'id'
 
@@ -44,37 +55,82 @@ PERS_DET_FK_COL_NAME = 'personal_details_id'
 
 
 class RentalDAO:
+    """
+    Data Access Object for interacting with the Rental parts
+    of the Soundgood Database.
+    Does not commit writes automatically. Use the `commit`
+    method for that. Reads commit themselves.
+    """
+
     def __init__(self) -> None:
+        """Initalizes an instance and opens the DB connection."""
         self.engine = create_engine(URL)
         self.conn = None
         self.open()
 
     def open(self) -> None:
-        self.conn = self.engine.connect()
+        """Opens a new DB connection."""
+        self.close()
+        self.conn = self.engine.connect() # Auto-commit is False by default
 
     def close(self) -> None:
-        self.conn.close()
+        """Closes any open DB connection."""
+        if self.conn is not None:
+            self.conn.close()
         self.conn = None
 
-    def execute(self, cmd: str, *args, **kwargs) -> Result:
-        return self.conn.execute(text(cmd), *args, **kwargs)
+    def execute(self, query: str, *args, **kwargs) -> Result:
+        """Prepares the `query` statement, formats it's parameters with args,
+        and executes it in the database."""
+        try:
+            # The `text` method provides parameter formatting
+            # and protects from SQL injection.
+            return self.conn.execute(text(query), *args, **kwargs)
+        except Exception as e:
+            self.handle_error(e)
 
     def commit(self) -> None:
+        """Commits the current transaction."""
         try:
             self.conn.connection.connection.commit()
         except Exception as e:
-            print(e)
+            self.handle_error(e)
 
-    def get_instrument_by_id(self, inst_id: int) -> RentalInstrument:
+    def rollback(self) -> None:
+        """Rolls back the current transaction."""
+        try:
+            self.conn.connection.connection.rollback()
+        except Exception as e:
+            raise DatabaseError('Transaction rollback failed!') from e
+
+    def handle_error(self, e: Exception) -> None:
+        """Handles errors by rolling back an ongoing transaction
+        and re-raising an Exception from the root cause."""
+        self.rollback()
+        raise DatabaseError('Database operation failed.') from e
+
+    def get_instrument_by_id(self, inst_id: int, lock_exclusive: bool = False) -> RentalInstrument:
+        """Returns a `RentalInstrument` object representing the
+        instrument with id `inst_id`.
+        If `lock_exclusive` is True, the table row will remain
+        locked until the current transaction is done. Also, this
+        method won't commit when it is done. If False, the
+        row is not locked, and this method commits on it's own.
+        Raises error if no instrument is found."""
         res = self.execute(f"""
                 SELECT * FROM {INST_TABLE_NAME}
                 WHERE {INST_PK_COL_NAME} = :i
+                {'FOR UPDATE' if lock_exclusive else ''}
                 ;""",
                 {'i': inst_id}
             )
-        return RentalInstrument(**res.first())
+        if not lock_exclusive:
+            self.commit()
+        return RentalInstrument(**res.one())
 
     def get_instruments_in_stock(self, type: str | None = None) -> list[RentalInstrument]:
+        """Returns list of all `RentalInstrument`s in stock.
+        Optionally, the instruments can be filtered with `type`."""
         res = self.execute(f"""
                 SELECT * FROM {INST_TABLE_NAME}
                 WHERE {INST_QUANTITY_COL_NAME} > 0
@@ -82,10 +138,12 @@ class RentalDAO:
                 ;""",
                 {'t': type}
             )
+        self.commit()
         return [RentalInstrument(**row) for row in res]
 
     def update_instrument(self, inst: RentalInstrument) -> None:
-        self.execute(f"""
+        """Updates the DB entry for the `RentalInstrument` object."""
+        res = self.execute(f"""
                 UPDATE {INST_TABLE_NAME} SET
                     {INST_TYPE_COL_NAME} = :t,
                     {INST_BRAND_COL_NAME} = :b,
@@ -101,30 +159,47 @@ class RentalDAO:
                     'i': inst.id,
                 }
             )
+        if res.rowcount != 1:
+            raise DatabaseError('Update instrument failed.')
 
-    def get_rental_by_id(self, rental_id: int) -> Rental:
+    def get_rental_by_id(self, rental_id: int, lock_exclusive: bool = False) -> Rental:
+        """Returns a `Rental` object representing the
+        rental with id `rental_id`.
+        If `lock_exclusive` is True, the table row will remain
+        locked until the current transaction is done. Also, this
+        method won't commit when it is done. If False, the
+        row is not locked, and this method commits on it's own.
+        Raises error if no rental is found."""
         res = self.execute(f"""
                 SELECT * FROM {RENTAL_TABLE_NAME}
                 WHERE {RENTAL_PK_COL_NAME} = :i
+                {'FOR UPDATE' if lock_exclusive else ''}
                 ;""",
                 {'i': rental_id}
             )
-        return Rental(**res.first())
+        if not lock_exclusive:
+            self.commit()
+        return Rental(**res.one())
 
     def get_all_rentals(self) -> list[Rental]:
+        """Returns list with all `Rental`s."""
         res = self.execute(f"SELECT * FROM {RENTAL_TABLE_NAME};")
+        self.commit()
         return [Rental(**row) for row in res]
 
-    def create_rental(self, student_id: int, inst_id: int, months: int = 12) -> None:
+    def create_rental(self, student_id: int, inst_id: int, months: int) -> None:
+        """Creates a new rental in the DB with the provided student and instrument."""
+        # Create an entry in the time table to use for the rental entry
         res = self.execute(f"""
                 INSERT INTO {TIME_TABLE_NAME} ({TIME_START_COL_NAME}, {TIME_END_COL_NAME}) VALUES
                     (LOCALTIMESTAMP, LOCALTIMESTAMP + INTERVAL ':m months')
-                RETURNING id
+                RETURNING {TIME_PK_COL_NAME}
                 ;""",
                 {'m': months}
             )
-        time_id = res.scalar()
+        time_id = res.scalar_one()
 
+        # Insert the Rental
         self.execute(f"""
                 INSERT INTO {RENTAL_TABLE_NAME} ({STUDENT_FK_COL_NAME}, {INST_FK_COL_NAME}, {TIME_FK_COL_NAME}) VALUES
                     (:s, :i, :t)
@@ -137,7 +212,8 @@ class RentalDAO:
             )
 
     def update_rental(self, rental: Rental) -> None:
-        self.execute(f"""
+        """Updates the DB entry for the `Rental` object."""
+        res = self.execute(f"""
                 UPDATE {RENTAL_TABLE_NAME} SET
                     {STUDENT_FK_COL_NAME} = :s,
                     {INST_FK_COL_NAME} = :i,
@@ -153,8 +229,11 @@ class RentalDAO:
                     'id': rental.id,
                 }
             )
+        if res.rowcount != 1:
+            raise DatabaseError('Update instrument failed.')
 
     def get_student_id_from_ssn(self, ssn: str) -> int:
+        """Looks up student by `ssn` and returns their id."""
         res = self.execute(f"""
                 SELECT s.id
                 FROM {STUDENT_TABLE_NAME} s INNER JOIN {PERS_DET_TABLE_NAME} pd
@@ -163,16 +242,19 @@ class RentalDAO:
                 ;""",
                 {'s': ssn}
             )
-        return res.scalar()
+        self.commit()
+        return res.scalar_one()
 
-    def get_number_of_active_rentals(self, student_id) -> int:
+    def get_number_of_active_rentals(self, student_id: int) -> int:
+        """Counts how many active rentals a student has."""
         res = self.execute(f"""
                 SELECT COUNT(*) FROM {RENTAL_TABLE_NAME}
                 WHERE {STUDENT_FK_COL_NAME} = :i AND {RENTAL_TERMINATED_COL_NAME} = FALSE
                 ;""",
                 {'i': student_id}
             )
-        return res.scalar()
+        self.commit()
+        return res.scalar_one()
 
 
 class DatabaseError(Exception):

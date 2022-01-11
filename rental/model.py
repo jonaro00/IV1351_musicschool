@@ -1,8 +1,8 @@
 """
 Model Layer
 
-DTO representations of the database entries.
-These classes hold data and contain the most basic business logic.
+Object representations of the database entries.
+These classes hold data and implement their own business logic.
 """
 
 from dataclasses import dataclass
@@ -20,8 +20,11 @@ class RentalInstrument:
 
     def rent(self) -> None:
         if self.quantity <= 0:
-            raise RentalError('None in stock')
+            raise RentalError('None in stock.')
         self.quantity -= 1
+
+    def put_back(self) -> None:
+        self.quantity += 1
 
 @dataclass
 class Rental:
@@ -33,7 +36,7 @@ class Rental:
 
     def terminate(self) -> None:
         if self.terminated:
-            raise RentalError('Rental is already terminated')
+            raise RentalError('Rental is already terminated.')
         self.terminated = True
 
 
